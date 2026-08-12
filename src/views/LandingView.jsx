@@ -212,22 +212,59 @@ export const LandingView = ({ onStartTest, onNavigate }) => {
         </div>
       </section>
 
-      <section id="process" className="scroll-mt-28 bg-[#fbfdff] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-        <div className="mx-auto max-w-[1420px]">
-          <p className="landing-eyebrow text-center">Our process — simple, smooth & stress-free</p>
-          <div className="relative mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <div className="absolute left-[7%] right-[7%] top-6 hidden border-t-2 border-dotted border-[#3d7ed0] xl:block" aria-hidden="true" />
+      <section id="process" className="scroll-mt-28 bg-white px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+        <div className="relative mx-auto max-w-[1420px] overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#041f3d] via-[#063d78] to-[#075ec5] px-5 py-14 shadow-[0_28px_80px_rgba(6,45,85,0.22)] sm:px-8 lg:px-12 lg:py-20">
+          <div className="absolute -left-24 -top-24 h-80 w-80 rounded-full border-[60px] border-white/[0.035]" aria-hidden="true" />
+          <div className="absolute -bottom-48 -right-32 h-[34rem] w-[34rem] rounded-full bg-sky-300/10 blur-3xl" aria-hidden="true" />
+          <PlaneTakeoff className="absolute right-[8%] top-10 h-40 w-40 -rotate-12 text-white/[0.025]" aria-hidden="true" />
+
+          <div className="relative mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-sky-100 backdrop-blur-sm">
+              <span className="h-2 w-2 rounded-full bg-sky-300" /> Our process
+            </span>
+            <h2 className="font-display mt-5 text-3xl font-semibold leading-tight tracking-[-0.025em] text-white sm:text-4xl lg:text-5xl">Simple, smooth &amp; stress-free</h2>
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-blue-50/70 sm:text-base">A clear six-step journey, with expert support and timely guidance from your first conversation to departure day.</p>
+          </div>
+
+          <div className="relative mx-auto mt-12 hidden max-w-5xl xl:block" aria-hidden="true">
+            <div className="absolute left-8 right-8 top-4 h-px bg-gradient-to-r from-transparent via-sky-200/60 to-transparent" />
+            <div className="relative flex justify-between">
+              {process.map((step, index) => (
+                <span key={`rail-${step.title}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-200/30 bg-[#0757ad] text-[10px] font-black text-white shadow-[0_0_0_7px_rgba(255,255,255,0.055)]">{index + 1}</span>
+              ))}
+            </div>
+          </div>
+
+          <ol className="relative mt-12 grid gap-5 md:grid-cols-2 xl:mt-9 xl:grid-cols-3">
             {process.map((step, index) => {
               const Icon = iconLibrary[step.icon] || CheckCircle2;
               return (
-                <article key={`${step.title}-${index}`} className="relative rounded-2xl border border-slate-200 bg-white px-4 pb-5 pt-10 text-center shadow-[0_12px_30px_rgba(6,45,85,0.045)]">
-                  <span className="absolute -top-4 left-1/2 z-10 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-[6px] border-white bg-[#075ec5] text-xs font-extrabold text-white shadow">{index + 1}</span>
-                  <Icon className="mx-auto h-8 w-8 text-[#075ec5]" />
-                  <h3 className="mt-4 text-xs font-extrabold text-[#0757ad]">{step.title}</h3>
-                  <p className="mt-2 text-[10px] leading-5 text-slate-500">{step.text}</p>
-                </article>
+                <li key={`${step.title}-${index}`} className="group relative min-h-[245px] overflow-hidden rounded-[1.5rem] border border-white/15 bg-white/[0.075] p-6 text-white shadow-[0_18px_45px_rgba(0,0,0,0.1)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-white/[0.12] sm:p-7">
+                  <span className="absolute -right-2 -top-7 font-display text-[7.5rem] font-semibold leading-none text-white/[0.045] transition duration-300 group-hover:text-white/[0.075]" aria-hidden="true">{index + 1}</span>
+                  <div className="relative flex items-start justify-between gap-4">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-[#075ec5] shadow-[0_12px_30px_rgba(0,0,0,0.16)] transition duration-300 group-hover:scale-105">
+                      <Icon className="h-7 w-7" />
+                    </span>
+                    <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-sky-100">Step {String(index + 1).padStart(2, '0')}</span>
+                  </div>
+                  <div className="relative mt-8">
+                    <h3 className="font-display text-2xl font-semibold">{step.title}</h3>
+                    <p className="mt-3 max-w-sm text-sm leading-6 text-blue-50/70">{step.text}</p>
+                  </div>
+                  <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-sky-300 to-white transition-all duration-500 group-hover:w-full" aria-hidden="true" />
+                </li>
               );
             })}
+          </ol>
+
+          <div className="relative mt-10 flex flex-col items-center justify-between gap-5 rounded-2xl border border-white/10 bg-[#031c37]/35 px-5 py-5 text-center backdrop-blur-sm sm:flex-row sm:px-7 sm:text-left">
+            <div className="flex items-center gap-4">
+              <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-300/15 text-sky-200 sm:flex"><Headphones className="h-5 w-5" /></span>
+              <div><p className="text-sm font-extrabold text-white">Ready to begin your journey?</p><p className="mt-1 text-xs text-blue-100/65">Start with a free, no-obligation counseling session.</p></div>
+            </div>
+            <button type="button" onClick={() => onNavigate('contact')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3.5 text-xs font-extrabold text-[#0757ad] shadow-lg transition hover:-translate-y-0.5 hover:bg-sky-50">
+              Book free counseling <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </section>
