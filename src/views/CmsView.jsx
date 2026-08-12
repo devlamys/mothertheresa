@@ -162,9 +162,19 @@ export const CmsView = ({ onNavigate }) => {
 
           {activeSection === 'Services & process' && (
             <>
-              <Panel title="Services">
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {draft.services.map((service, index) => <Field key={`${service.title}-${index}`} label={`Service ${index + 1}`} value={service.title} onChange={(event) => updateItem('services', index, 'title', event.target.value)} />)}
+              <Panel title="Services" description="Update each service card's title, description, and photography. Use a public-folder path or full image URL.">
+                <div className="grid gap-5 xl:grid-cols-2">
+                  {draft.services.map((service, index) => (
+                    <div key={`${service.title}-${index}`} className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                      <img src={resolveImage(service.image)} alt="" className="h-40 w-full object-cover" style={{ objectPosition: service.imagePosition || 'center' }} />
+                      <div className="space-y-3 p-4">
+                        <Field label={`Service ${index + 1}`} value={service.title} onChange={(event) => updateItem('services', index, 'title', event.target.value)} />
+                        <Field multiline label="Description" value={service.description || ''} onChange={(event) => updateItem('services', index, 'description', event.target.value)} />
+                        <Field label="Image path or URL" value={service.image || ''} onChange={(event) => updateItem('services', index, 'image', event.target.value)} />
+                        <Field label="Image focus" value={service.imagePosition || 'center'} onChange={(event) => updateItem('services', index, 'imagePosition', event.target.value)} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </Panel>
               <Panel title="Six-step process">

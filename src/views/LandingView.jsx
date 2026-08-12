@@ -161,16 +161,50 @@ export const LandingView = ({ onStartTest, onNavigate }) => {
         </div>
       </section>
 
-      <section id="services" className="scroll-mt-28 px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-        <div className="mx-auto max-w-[1420px]">
-          <p className="landing-eyebrow text-center">Our services</p>
-          <div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
+      <section id="services" className="relative scroll-mt-28 overflow-hidden bg-[#f6faff] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+        <div className="absolute -left-32 top-20 h-96 w-96 rounded-full bg-blue-200/25 blur-3xl" aria-hidden="true" />
+        <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-sky-200/30 blur-3xl" aria-hidden="true" />
+        <div className="relative mx-auto max-w-[1420px]">
+          <div className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
+            <div>
+              <p className="landing-eyebrow">Our services</p>
+              <h2 className="font-display mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-[-0.025em] text-[#062d55] sm:text-4xl lg:text-5xl">
+                Everything you need to <span className="text-[#075ec5]">study abroad confidently.</span>
+              </h2>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">From your first career conversation to the day you arrive on campus, our specialists guide every important decision.</p>
+            </div>
+            <button type="button" onClick={() => onNavigate('contact')} className="inline-flex w-fit items-center justify-center gap-2 rounded-xl border border-[#075ec5]/20 bg-white px-5 py-3.5 text-sm font-extrabold text-[#0757ad] shadow-[0_12px_30px_rgba(6,45,85,0.08)] transition hover:-translate-y-0.5 hover:border-[#075ec5] hover:bg-[#075ec5] hover:text-white">
+              Talk to an expert <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mt-12 grid auto-rows-[300px] gap-5 md:grid-cols-2 md:auto-rows-[280px] xl:grid-cols-4">
             {services.map((service, index) => {
               const Icon = iconLibrary[service.icon] || CheckCircle2;
+              const isFeatured = index === 0;
               return (
-                <article key={`${service.title}-${index}`} className="landing-card flex min-h-[135px] flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-4 text-center">
-                  <Icon className="h-8 w-8 text-[#075ec5]" />
-                  <h3 className="mt-4 text-[11px] font-extrabold leading-4 text-[#0757ad]">{service.title}</h3>
+                <article key={`${service.title}-${index}`} className={`group relative isolate overflow-hidden rounded-[1.75rem] bg-[#062d55] shadow-[0_18px_45px_rgba(6,45,85,0.13)] ${isFeatured ? 'md:col-span-2 md:row-span-2' : ''}`}>
+                  <img
+                    src={resolveImage(service.image)}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.06]"
+                    style={{ objectPosition: service.imagePosition || 'center' }}
+                    loading="lazy"
+                  />
+                  <div className={`absolute inset-0 ${isFeatured ? 'bg-gradient-to-t from-[#041f3d] via-[#062d55]/30 to-transparent' : 'bg-gradient-to-t from-[#041f3d] via-[#062d55]/45 to-transparent'}`} />
+                  <div className="absolute inset-x-0 top-0 flex items-start justify-between p-5 sm:p-6">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/30 bg-white/90 text-[#075ec5] shadow-lg backdrop-blur-sm">
+                      <Icon className="h-6 w-6" />
+                    </span>
+                    <span className="rounded-full border border-white/20 bg-[#062d55]/25 px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-white/85 backdrop-blur-md">0{index + 1}</span>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6 lg:p-7">
+                    <h3 className={`font-display font-semibold leading-tight ${isFeatured ? 'text-3xl sm:text-4xl' : 'text-xl sm:text-2xl'}`}>{service.title}</h3>
+                    <p className={`mt-3 max-w-xl leading-6 text-blue-50/80 ${isFeatured ? 'text-sm sm:text-base' : 'text-xs'}`}>{service.description}</p>
+                    <button type="button" onClick={() => onNavigate('contact')} className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-white transition group-hover:gap-3" aria-label={`Enquire about ${service.title}`}>
+                      Explore service <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </article>
               );
             })}

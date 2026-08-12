@@ -7,6 +7,15 @@ import { DEFAULT_LANDING_CONTENT } from '../data/landingContent';
 import { getPublicHomepage, publishHomepage, submitWebsiteLead } from '../services/erpApi';
 import { AppContext } from './appContextInstance';
 
+const normalizeLandingContent = (content = {}) => ({
+  ...DEFAULT_LANDING_CONTENT,
+  ...content,
+  services: DEFAULT_LANDING_CONTENT.services.map((fallback, index) => ({
+    ...fallback,
+    ...(content.services?.[index] || {}),
+  })),
+});
+
 export const AppProvider = ({ children }) => {
   const [state, setState] = useState(() => {
     const saved = localStorage.getItem('mothertheresa_erp_state');
@@ -28,12 +37,12 @@ export const AppProvider = ({ children }) => {
     const saved = localStorage.getItem('mothertheresa_landing_content');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return normalizeLandingContent(JSON.parse(saved));
       } catch (error) {
         console.error('Failed to parse landing content:', error);
       }
     }
-    return DEFAULT_LANDING_CONTENT;
+    return normalizeLandingContent();
   });
 
   // Sync state to local storage
@@ -49,7 +58,7 @@ export const AppProvider = ({ children }) => {
     let active = true;
     getPublicHomepage()
       .then((result) => {
-        if (active && result?.content) setLandingContent(result.content);
+        if (active && result?.content) setLandingContent(normalizeLandingContent(result.content));
       })
       .catch((error) => console.warn('Using local CMS content because the API is unavailable:', error.message));
     return () => { active = false; };
