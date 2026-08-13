@@ -5,7 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const projectRoot = new URL('../', import.meta.url);
 const workerSource = readFileSync(new URL('worker/index.js', projectRoot), 'utf8');
-const migrationFiles = ['drizzle/0000_secure_auth.sql', 'drizzle/0001_initial_staff.sql'];
+const migrationFiles = ['drizzle/0000_secure_auth.sql', 'drizzle/0001_initial_staff.sql', 'drizzle/0002_worker_password_compatibility.sql'];
 const migrationSql = migrationFiles
   .map((path) => readFileSync(new URL(path, projectRoot), 'utf8'))
   .join('\n')
@@ -25,19 +25,19 @@ assert.equal(staff.status, 'active');
 
 const [algorithm, iterationsText, saltText, digestText] = staff.passwordHash.split('$');
 assert.equal(algorithm, 'pbkdf2_sha256');
-assert.equal(Number(iterationsText), 310_000);
+assert.equal(Number(iterationsText), 100_000);
 assert.equal(Buffer.from(saltText, 'base64url').length, 16);
 assert.equal(Buffer.from(digestText, 'base64url').length, 32);
 
 const samplePassword = 'SampleSecure7';
 const sampleSalt = Buffer.from('0123456789abcdef');
-const sampleDigest = pbkdf2Sync(samplePassword, sampleSalt, 310_000, 32, 'sha256');
+const sampleDigest = pbkdf2Sync(samplePassword, sampleSalt, 100_000, 32, 'sha256');
 assert.equal(sampleDigest.length, 32);
 
 for (const route of ['auth/csrf', 'auth/me', 'auth/register', 'auth/login', 'auth/logout']) {
   assert.ok(workerSource.includes(route), `Worker is missing ${route}`);
 }
-for (const securityFeature of ['HttpOnly', 'SameSite=Lax', 'verifyCsrf', 'enforceRateLimit', 'PASSWORD_ITERATIONS = 310_000', 'timing']) {
+for (const securityFeature of ['HttpOnly', 'SameSite=Lax', 'verifyCsrf', 'enforceRateLimit', 'PASSWORD_ITERATIONS = 100_000', 'timing']) {
   const present = securityFeature === 'timing' ? workerSource.includes('difference |=') : workerSource.includes(securityFeature);
   assert.ok(present, `Worker is missing ${securityFeature}`);
 }

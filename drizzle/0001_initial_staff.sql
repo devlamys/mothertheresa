@@ -14,7 +14,7 @@ INSERT OR IGNORE INTO `auth_users` (
 ) VALUES (
   'usr_staff_sarah_jenkins',
   'counselor@mothertheresa.edu',
-  'pbkdf2_sha256$310000$bqxIHA0fv2kHvh9yanQX0A$t4raJYEYL1qDLZgxXmAJPdEs6dgg3Jpb5VndlQKdQDQ',
+  'pbkdf2_sha256$100000$wfsu3MBJ5-Bi2WAonyNIaA$zQ1Y3DLseg9iQzjgDUULtusECFbQPl_DozbDESsyavQ',
   'counselor',
   'Dr. Sarah Jenkins',
   '+971 50 000 0000',

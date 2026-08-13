@@ -1,8 +1,8 @@
 const encoder = new TextEncoder();
 const SESSION_COOKIE = 'mt_session';
 const CSRF_COOKIE = 'mt_csrf';
-const PASSWORD_ITERATIONS = 310_000;
-const DUMMY_PASSWORD_HASH = 'pbkdf2_sha256$310000$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+const PASSWORD_ITERATIONS = 100_000;
+const DUMMY_PASSWORD_HASH = 'pbkdf2_sha256$100000$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 let schemaInitialization = null;
 
 const ensureAuthSchema = async (db) => {
@@ -20,7 +20,8 @@ const ensureAuthSchema = async (db) => {
       db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_attempts_ip_time ON auth_attempts (ip_hash, attempted_at)'),
       db.prepare('CREATE TABLE IF NOT EXISTS auth_events (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id TEXT, event TEXT NOT NULL, ip_hash TEXT, created_at TEXT NOT NULL, FOREIGN KEY (user_id) REFERENCES auth_users(id) ON DELETE SET NULL)'),
       db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_events_user_time ON auth_events (user_id, created_at)'),
-      db.prepare("INSERT OR IGNORE INTO auth_users (id, email, password_hash, role, full_name, phone, target_country, education_level, status, email_verified, created_at, updated_at) VALUES ('usr_staff_sarah_jenkins', 'counselor@mothertheresa.edu', 'pbkdf2_sha256$310000$bqxIHA0fv2kHvh9yanQX0A$t4raJYEYL1qDLZgxXmAJPdEs6dgg3Jpb5VndlQKdQDQ', 'counselor', 'Dr. Sarah Jenkins', '+971 50 000 0000', 'United Arab Emirates', 'Admissions Counselor', 'active', 1, ?, ?)").bind(initializedAt, initializedAt),
+      db.prepare("INSERT OR IGNORE INTO auth_users (id, email, password_hash, role, full_name, phone, target_country, education_level, status, email_verified, created_at, updated_at) VALUES ('usr_staff_sarah_jenkins', 'counselor@mothertheresa.edu', 'pbkdf2_sha256$100000$wfsu3MBJ5-Bi2WAonyNIaA$zQ1Y3DLseg9iQzjgDUULtusECFbQPl_DozbDESsyavQ', 'counselor', 'Dr. Sarah Jenkins', '+971 50 000 0000', 'United Arab Emirates', 'Admissions Counselor', 'active', 1, ?, ?)").bind(initializedAt, initializedAt),
+      db.prepare("UPDATE auth_users SET password_hash = 'pbkdf2_sha256$100000$wfsu3MBJ5-Bi2WAonyNIaA$zQ1Y3DLseg9iQzjgDUULtusECFbQPl_DozbDESsyavQ', updated_at = ? WHERE id = 'usr_staff_sarah_jenkins' AND password_hash = 'pbkdf2_sha256$310000$bqxIHA0fv2kHvh9yanQX0A$t4raJYEYL1qDLZgxXmAJPdEs6dgg3Jpb5VndlQKdQDQ'").bind(initializedAt),
     ]).catch((error) => {
       schemaInitialization = null;
       throw error;
