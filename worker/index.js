@@ -3,6 +3,31 @@ const SESSION_COOKIE = 'mt_session';
 const CSRF_COOKIE = 'mt_csrf';
 const PASSWORD_ITERATIONS = 310_000;
 const DUMMY_PASSWORD_HASH = 'pbkdf2_sha256$310000$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+let schemaInitialization = null;
+
+const ensureAuthSchema = async (db) => {
+  if (!schemaInitialization) {
+    const initializedAt = new Date().toISOString();
+    schemaInitialization = db.batch([
+      db.prepare("CREATE TABLE IF NOT EXISTS auth_users (id TEXT PRIMARY KEY NOT NULL, email TEXT NOT NULL COLLATE NOCASE, password_hash TEXT NOT NULL, role TEXT DEFAULT 'student' NOT NULL CHECK (role IN ('student', 'counselor', 'admin')), full_name TEXT NOT NULL, phone TEXT, target_country TEXT, education_level TEXT, status TEXT DEFAULT 'active' NOT NULL CHECK (status IN ('active', 'suspended')), email_verified INTEGER DEFAULT 0 NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, last_login_at TEXT)"),
+      db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_auth_users_email ON auth_users (email)'),
+      db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_users_role_status ON auth_users (role, status)'),
+      db.prepare('CREATE TABLE IF NOT EXISTS auth_sessions (id TEXT PRIMARY KEY NOT NULL, user_id TEXT NOT NULL, expires_at TEXT NOT NULL, created_at TEXT NOT NULL, last_seen_at TEXT NOT NULL, ip_hash TEXT, user_agent_hash TEXT, FOREIGN KEY (user_id) REFERENCES auth_users(id) ON DELETE CASCADE)'),
+      db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_sessions_user ON auth_sessions (user_id)'),
+      db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_sessions_expiry ON auth_sessions (expires_at)'),
+      db.prepare('CREATE TABLE IF NOT EXISTS auth_attempts (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, identifier_hash TEXT NOT NULL, ip_hash TEXT NOT NULL, success INTEGER DEFAULT 0 NOT NULL, attempted_at TEXT NOT NULL)'),
+      db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_attempts_identifier_time ON auth_attempts (identifier_hash, attempted_at)'),
+      db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_attempts_ip_time ON auth_attempts (ip_hash, attempted_at)'),
+      db.prepare('CREATE TABLE IF NOT EXISTS auth_events (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id TEXT, event TEXT NOT NULL, ip_hash TEXT, created_at TEXT NOT NULL, FOREIGN KEY (user_id) REFERENCES auth_users(id) ON DELETE SET NULL)'),
+      db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_events_user_time ON auth_events (user_id, created_at)'),
+      db.prepare("INSERT OR IGNORE INTO auth_users (id, email, password_hash, role, full_name, phone, target_country, education_level, status, email_verified, created_at, updated_at) VALUES ('usr_staff_sarah_jenkins', 'counselor@mothertheresa.edu', 'pbkdf2_sha256$310000$bqxIHA0fv2kHvh9yanQX0A$t4raJYEYL1qDLZgxXmAJPdEs6dgg3Jpb5VndlQKdQDQ', 'counselor', 'Dr. Sarah Jenkins', '+971 50 000 0000', 'United Arab Emirates', 'Admissions Counselor', 'active', 1, ?, ?)").bind(initializedAt, initializedAt),
+    ]).catch((error) => {
+      schemaInitialization = null;
+      throw error;
+    });
+  }
+  return schemaInitialization;
+};
 
 const base64Url = (bytes) => {
   let binary = '';
@@ -158,6 +183,7 @@ const getSessionUser = async (db, request) => {
 
 const handleAuth = async (request, env, resource) => {
   if (!env.DB) return fail('Account storage is not configured.', 503);
+  await ensureAuthSchema(env.DB);
   const method = request.method.toUpperCase();
 
   if (resource === 'auth/csrf' && method === 'GET') {
@@ -266,10 +292,15 @@ export default {
 
     const resource = url.searchParams.get('resource') || url.pathname.replace(/^\/api\//u, '').replace(/\/$/u, '');
     try {
-      if (resource === 'health' && request.method === 'GET') return json({ status: 'ok', service: 'Mother Teresa Accounts', database: env.DB ? 'connected' : 'unavailable' });
+      if (resource === 'health' && request.method === 'GET') {
+        if (!env.DB) return json({ status: 'degraded', service: 'Mother Teresa Accounts', database: 'unavailable' }, 503);
+        await ensureAuthSchema(env.DB);
+        return json({ status: 'ok', service: 'Mother Teresa Accounts', database: 'ready' });
+      }
       if (resource.startsWith('auth/')) return await handleAuth(request, env, resource);
       return fail('API resource not found.', 404);
     } catch (error) {
+      console.error('Account API request failed', { method: request.method, resource, message: error?.message, stack: error?.stack });
       const status = Number(error.status || 500);
       return fail(status >= 500 ? 'We could not complete this request. Please try again.' : error.message, status);
     }
