@@ -85,13 +85,13 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
               <button type="button" onClick={logout} className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Sign out" title="Sign out"><LogOut className="h-4 w-4" /></button>
             </>
           ) : (
-            <button type="button" onClick={onOpenAuth} className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[10px] font-extrabold text-[#075ec5] transition hover:border-[#075ec5] hover:bg-[#075ec5] hover:text-white" aria-label="Login to your account"><LogIn className="h-4 w-4" /> Login</button>
+            <button type="button" onClick={() => onOpenAuth('student', 'student_portal')} className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[10px] font-extrabold text-[#075ec5] transition hover:border-[#075ec5] hover:bg-[#075ec5] hover:text-white" aria-label="Login to your account"><LogIn className="h-4 w-4" /> Login</button>
           )}
           <button type="button" onClick={() => onNavigate('contact')} className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#075ec5] to-[#064a9d] px-4 text-[10px] font-extrabold text-white shadow-[0_10px_24px_rgba(7,94,197,0.25)] transition hover:-translate-y-0.5"><CalendarDays className="h-4 w-4" /> Free Consultation</button>
         </div>
 
         <div className="flex items-center gap-2 min-[1180px]:hidden">
-          {!activeUser && <button type="button" onClick={onOpenAuth} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#075ec5] px-3 text-xs font-extrabold text-white"><LogIn className="h-4 w-4" /> Login</button>}
+          {!activeUser && <button type="button" onClick={() => onOpenAuth('student', 'student_portal')} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#075ec5] px-3 text-xs font-extrabold text-white"><LogIn className="h-4 w-4" /> Login</button>}
           <button type="button" onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-[#063764]" aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileMenuOpen}>
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

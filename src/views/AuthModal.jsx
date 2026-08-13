@@ -60,7 +60,7 @@ export const AuthModal = ({ onClose, initialMode = 'login', initialAccountType =
       if (isStaff) {
         const staffUser = await loginStaff(formData.email, formData.password, rememberMe);
         loginAsRole('counselor', staffUser);
-        finishAuthentication(nextView || 'counselor_portal');
+        finishAuthentication(nextView === 'cms' ? 'cms' : 'counselor_portal');
         return;
       }
 
@@ -72,7 +72,7 @@ export const AuthModal = ({ onClose, initialMode = 'login', initialAccountType =
       } else {
         await authenticateStudent(formData.email, formData.password, rememberMe);
       }
-      finishAuthentication(nextView || (isAssessmentSignup ? 'test' : 'student_portal'));
+      finishAuthentication(nextView === 'test' || isAssessmentSignup ? 'test' : 'student_portal');
     } catch (error) {
       setFormError(error.message || 'We could not sign you in. Please check your details.');
     } finally {
