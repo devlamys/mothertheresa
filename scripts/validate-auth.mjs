@@ -5,7 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const projectRoot = new URL('../', import.meta.url);
 const workerSource = readFileSync(new URL('worker/index.js', projectRoot), 'utf8');
-const migrationFiles = ['drizzle/0000_secure_auth.sql', 'drizzle/0001_initial_staff.sql', 'drizzle/0002_worker_password_compatibility.sql'];
+const migrationFiles = ['drizzle/0000_secure_auth.sql', 'drizzle/0001_initial_staff.sql', 'drizzle/0002_worker_password_compatibility.sql', 'drizzle/0003_initial_admin.sql'];
 const migrationSql = migrationFiles
   .map((path) => readFileSync(new URL(path, projectRoot), 'utf8'))
   .join('\n')
@@ -22,6 +22,12 @@ const staff = database.prepare("SELECT email, password_hash AS passwordHash, rol
 assert.equal(staff.email, 'counselor@mothertheresa.edu');
 assert.equal(staff.role, 'counselor');
 assert.equal(staff.status, 'active');
+
+const admin = database.prepare("SELECT email, password_hash AS passwordHash, role, status FROM auth_users WHERE id = 'usr_admin_platform'").get();
+assert.equal(admin.email, 'admin@mothertheresa.edu');
+assert.equal(admin.role, 'admin');
+assert.equal(admin.status, 'active');
+assert.equal(admin.passwordHash.split('$')[1], '100000');
 
 const [algorithm, iterationsText, saltText, digestText] = staff.passwordHash.split('$');
 assert.equal(algorithm, 'pbkdf2_sha256');

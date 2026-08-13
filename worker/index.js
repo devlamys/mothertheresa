@@ -22,6 +22,7 @@ const ensureAuthSchema = async (db) => {
       db.prepare('CREATE INDEX IF NOT EXISTS idx_auth_events_user_time ON auth_events (user_id, created_at)'),
       db.prepare("INSERT OR IGNORE INTO auth_users (id, email, password_hash, role, full_name, phone, target_country, education_level, status, email_verified, created_at, updated_at) VALUES ('usr_staff_sarah_jenkins', 'counselor@mothertheresa.edu', 'pbkdf2_sha256$100000$wfsu3MBJ5-Bi2WAonyNIaA$zQ1Y3DLseg9iQzjgDUULtusECFbQPl_DozbDESsyavQ', 'counselor', 'Dr. Sarah Jenkins', '+971 50 000 0000', 'United Arab Emirates', 'Admissions Counselor', 'active', 1, ?, ?)").bind(initializedAt, initializedAt),
       db.prepare("UPDATE auth_users SET password_hash = 'pbkdf2_sha256$100000$wfsu3MBJ5-Bi2WAonyNIaA$zQ1Y3DLseg9iQzjgDUULtusECFbQPl_DozbDESsyavQ', updated_at = ? WHERE id = 'usr_staff_sarah_jenkins' AND password_hash = 'pbkdf2_sha256$310000$bqxIHA0fv2kHvh9yanQX0A$t4raJYEYL1qDLZgxXmAJPdEs6dgg3Jpb5VndlQKdQDQ'").bind(initializedAt),
+      db.prepare("INSERT OR IGNORE INTO auth_users (id, email, password_hash, role, full_name, phone, target_country, education_level, status, email_verified, created_at, updated_at) VALUES ('usr_admin_platform', 'admin@mothertheresa.edu', 'pbkdf2_sha256$100000$1cxKmTCG5LnCivR2lNMlLw$33kjeQJCpFggqdAgEM2Pqx0CK7sG-0OwWH7mp-eJtV0', 'admin', 'Platform Administrator', '+971 50 000 0001', 'United Arab Emirates', 'System Administration', 'active', 1, ?, ?)").bind(initializedAt, initializedAt),
     ]).catch((error) => {
       schemaInitialization = null;
       throw error;
