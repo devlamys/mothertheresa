@@ -110,7 +110,7 @@ const AppContent = () => {
           initialMode={authRequest.mode}
           purpose={authRequest.purpose}
           onClose={() => setAuthRequest(null)}
-          onAuthenticated={() => setCurrentView(authRequest.nextView)}
+          onAuthenticated={(targetView) => setCurrentView(targetView || authRequest.nextView)}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, BriefcaseBusiness, CalendarDays, GraduationCap, LogOut, Menu, Settings, X } from 'lucide-react';
+import { Brain, BriefcaseBusiness, CalendarDays, ChevronDown, GraduationCap, LogIn, LogOut, Menu, Settings, X } from 'lucide-react';
 import { useApp } from '../context/useApp';
 
 const navItems = [
@@ -49,48 +49,51 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-[0_5px_25px_rgba(6,45,85,0.06)] backdrop-blur-xl no-print">
-      <div className="mx-auto flex h-[82px] max-w-[1600px] items-center justify-between gap-5 px-4 sm:px-7 lg:px-10 xl:px-12">
-        <button type="button" onClick={() => goToLandingSection('home')} className="brand-logo-frame w-[205px] shrink-0 sm:w-[220px]" aria-label="Mother Teresa Educational Global Trust home">
+    <header className="pointer-events-none sticky top-0 z-50 h-[96px] bg-transparent px-3 pt-3 no-print sm:px-5">
+      <div className="pointer-events-auto mx-auto flex h-[72px] max-w-[1540px] items-center justify-between gap-4 rounded-[1.35rem] border border-white/80 bg-white/90 px-3 shadow-[0_18px_55px_rgba(6,45,85,0.14)] backdrop-blur-2xl sm:px-5 lg:px-6">
+        <button type="button" onClick={() => goToLandingSection('home')} className="brand-logo-frame w-[190px] shrink-0 sm:w-[215px]" aria-label="Mother Teresa Educational Global Trust home">
           <img src={`${import.meta.env.BASE_URL}brand/mother-teresa-logo.jpg`} alt="Mother Teresa Educational Global Trust" />
         </button>
 
-        <nav className="hidden items-center rounded-full border border-slate-200 bg-white px-2 shadow-[0_8px_24px_rgba(6,45,85,0.06)] min-[1180px]:flex" aria-label="Main navigation">
+        <nav className="hidden items-center rounded-2xl border border-slate-200/70 bg-slate-50/80 px-1.5 min-[1180px]:flex" aria-label="Main navigation">
           {navItems.map((item) => (
             <button
               key={item.label}
               type="button"
               onClick={() => handleNav(item)}
               aria-current={isActive(item) ? 'page' : undefined}
-              className={`relative whitespace-nowrap px-2.5 py-3.5 text-[9.5px] font-extrabold transition 2xl:px-3.5 ${isActive(item) ? 'text-[#075ec5]' : 'text-slate-600 hover:text-[#075ec5]'}`}
+              className={`relative whitespace-nowrap rounded-xl px-2.5 py-3 text-[9.5px] font-extrabold transition 2xl:px-3.5 ${isActive(item) ? 'bg-white text-[#075ec5] shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-[#075ec5]'}`}
             >
               {item.label}
-              {isActive(item) && <span className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-[#075ec5]" />}
+              {isActive(item) && <span className="absolute inset-x-4 bottom-1 h-0.5 rounded-full bg-[#075ec5]" />}
             </button>
           ))}
         </nav>
 
         <div className="hidden shrink-0 items-center gap-2 min-[1180px]:flex">
-          <button type="button" onClick={() => onNavigate('cms')} className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${currentView === 'cms' ? 'border-blue-200 bg-blue-50 text-[#075ec5]' : 'border-slate-200 text-slate-500 hover:border-blue-200 hover:text-[#075ec5]'}`} aria-label="Open landing page CMS" title="Landing page CMS"><Settings className="h-4 w-4" /></button>
-          <button type="button" onClick={openStaffErp} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-blue-200 hover:text-[#075ec5]" aria-label="Open Staff ERP" title="Staff ERP"><BriefcaseBusiness className="h-4 w-4" /></button>
+          <button type="button" onClick={() => onNavigate('cms')} className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${currentView === 'cms' ? 'border-blue-200 bg-blue-50 text-[#075ec5]' : 'border-slate-200 text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]'}`} aria-label="Open landing page CMS" title="Landing page CMS"><Settings className="h-4 w-4" /></button>
+          <button type="button" onClick={openStaffErp} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]" aria-label="Open Staff ERP" title="Staff ERP"><BriefcaseBusiness className="h-4 w-4" /></button>
           {activeUser ? (
             <>
-              <button type="button" onClick={openActivePortal} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-[#075ec5]" aria-label={`Open ${userRole === 'counselor' ? 'counselor ERP' : 'student portal'}`} title={userRole === 'counselor' ? 'Counselor ERP' : 'Student portal'}><GraduationCap className="h-4 w-4" /></button>
+              <button type="button" onClick={openActivePortal} className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3 text-[10px] font-extrabold text-[#075ec5]" aria-label={`Open ${userRole === 'counselor' ? 'counselor ERP' : 'student portal'}`} title={userRole === 'counselor' ? 'Counselor ERP' : 'Student portal'}><GraduationCap className="h-4 w-4" /><span className="max-w-20 truncate">{activeUser.name?.split(' ')[0] || 'Portal'}</span><ChevronDown className="h-3 w-3" /></button>
               <button type="button" onClick={logout} className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Sign out" title="Sign out"><LogOut className="h-4 w-4" /></button>
             </>
           ) : (
-            <button type="button" onClick={onOpenAuth} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-[#075ec5]" aria-label="Student login" title="Student login"><GraduationCap className="h-4 w-4" /></button>
+            <button type="button" onClick={onOpenAuth} className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 text-[10px] font-extrabold text-[#075ec5] transition hover:border-[#075ec5] hover:bg-[#075ec5] hover:text-white" aria-label="Login to your account"><LogIn className="h-4 w-4" /> Login</button>
           )}
-          <button type="button" onClick={() => onNavigate('contact')} className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-[#075ec5] px-4 py-3.5 text-[10px] font-extrabold text-white shadow-[0_10px_24px_rgba(7,94,197,0.25)] transition hover:bg-[#064eaa]"><CalendarDays className="h-4 w-4" /> Book Free Consultation</button>
+          <button type="button" onClick={() => onNavigate('contact')} className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#075ec5] to-[#064a9d] px-4 text-[10px] font-extrabold text-white shadow-[0_10px_24px_rgba(7,94,197,0.25)] transition hover:-translate-y-0.5"><CalendarDays className="h-4 w-4" /> Free Consultation</button>
         </div>
 
-        <button type="button" onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-[#063764] min-[1180px]:hidden" aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileMenuOpen}>
+        <div className="flex items-center gap-2 min-[1180px]:hidden">
+          {!activeUser && <button type="button" onClick={onOpenAuth} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#075ec5] px-3 text-xs font-extrabold text-white"><LogIn className="h-4 w-4" /> Login</button>}
+          <button type="button" onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-[#063764]" aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileMenuOpen}>
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+          </button>
+        </div>
       </div>
 
       {mobileMenuOpen && (
-        <div className="border-t border-slate-100 bg-white px-5 py-5 shadow-xl min-[1180px]:hidden">
+        <div className="pointer-events-auto absolute left-3 right-3 top-[84px] overflow-hidden rounded-3xl border border-white bg-white/95 px-5 py-5 shadow-[0_25px_70px_rgba(6,45,85,0.2)] backdrop-blur-2xl min-[1180px]:hidden sm:left-5 sm:right-5">
           <nav className="mx-auto max-w-3xl" aria-label="Mobile navigation">
             <div className="grid sm:grid-cols-2">
               {navItems.map((item) => (
@@ -103,7 +106,7 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
               {activeUser ? (
                 <button type="button" onClick={openActivePortal} className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 px-5 py-3 text-sm font-bold text-[#075ec5]"><GraduationCap className="h-4 w-4" /> Open {userRole === 'counselor' ? 'counselor ERP' : 'student portal'}</button>
               ) : (
-                <button type="button" onClick={() => { onOpenAuth(); setMobileMenuOpen(false); }} className="rounded-xl border border-blue-200 px-5 py-3 text-sm font-bold text-[#075ec5]">Student login</button>
+                <button type="button" onClick={() => { onOpenAuth(); setMobileMenuOpen(false); }} className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 px-5 py-3 text-sm font-bold text-[#075ec5]"><LogIn className="h-4 w-4" /> Login</button>
               )}
               <button type="button" onClick={() => { onStartTest(); setMobileMenuOpen(false); }} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#062d55] px-5 py-3 text-sm font-bold text-white"><Brain className="h-4 w-4" /> Aptitude test</button>
               <button type="button" onClick={() => { onNavigate('contact'); setMobileMenuOpen(false); }} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#075ec5] px-5 py-3 text-sm font-bold text-white"><CalendarDays className="h-4 w-4" /> Free consultation</button>

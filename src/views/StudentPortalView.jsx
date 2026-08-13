@@ -67,10 +67,10 @@ export const StudentPortalView = () => {
   const latestTest = testResults[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="student-portal-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* Student Welcome Banner */}
-      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-indigo-500/30 flex flex-col md:flex-row md:items-center justify-between gap-6 gradient-bg/10">
+      <div className="student-welcome-card glass-panel p-6 sm:p-8 rounded-3xl border border-indigo-500/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
           <img 
             src={activeUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'} 
@@ -102,7 +102,7 @@ export const StudentPortalView = () => {
       </div>
 
       {/* Tabs Bar */}
-      <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-slate-800">
+      <div className="student-tabs flex items-center space-x-2 overflow-x-auto rounded-2xl border border-slate-800 p-2">
         {[
           { id: 'dashboard', label: 'Overview', icon: GraduationCap },
           { id: 'applications', label: `Applications (${applications.length})`, icon: FileText },

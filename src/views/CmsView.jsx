@@ -18,7 +18,7 @@ const Field = ({ label, multiline = false, ...props }) => (
 );
 
 const Panel = ({ title, description, children }) => (
-  <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-[0_14px_38px_rgba(6,45,85,0.055)] sm:p-7">
+  <section className="cms-panel rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-[0_14px_38px_rgba(6,45,85,0.055)] sm:p-7">
     <div className="border-b border-slate-100 pb-5">
       <h2 className="text-xl font-extrabold text-[#062d55]">{title}</h2>
       {description && <p className="mt-2 text-xs leading-6 text-slate-500">{description}</p>}
@@ -56,8 +56,8 @@ export const CmsView = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f8fb] text-slate-900">
-      <section className="border-b border-slate-200 bg-white px-5 py-8 sm:px-8 lg:px-12">
+    <div className="cms-shell min-h-screen bg-[#f4f8fb] pb-12 text-slate-900">
+      <section className="mx-3 rounded-[1.75rem] border border-white bg-white/90 px-5 py-7 shadow-[0_18px_55px_rgba(6,45,85,0.1)] backdrop-blur-xl sm:mx-5 sm:px-8 lg:px-10">
         <div className="mx-auto flex max-w-[1380px] flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#eaf4ff] text-[#0868b5]"><LayoutDashboard className="h-6 w-6" /></span>
@@ -78,7 +78,7 @@ export const CmsView = ({ onNavigate }) => {
       </section>
 
       <div className="mx-auto grid max-w-[1380px] gap-7 px-5 py-8 sm:px-8 lg:grid-cols-[240px_1fr] lg:px-12 lg:py-12">
-        <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-3 lg:sticky lg:top-28">
+        <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-3 shadow-[0_16px_42px_rgba(6,45,85,0.07)] lg:sticky lg:top-28">
           <button type="button" onClick={() => onNavigate('landing')} className="mb-3 inline-flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-500"><ArrowLeft className="h-4 w-4" /> Back to website</button>
           <nav className="space-y-1" aria-label="CMS sections">
             {sections.map((section) => (

@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BadgeDollarSign,
   Bell,
+  BriefcaseBusiness,
   CalendarClock,
   Check,
   ChevronDown,
@@ -358,12 +359,12 @@ export const CounselorPortalView = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-82px)] bg-[#f4f7fa] text-slate-900">
-      <aside className="fixed bottom-0 left-0 top-0 z-40 hidden w-[260px] border-r border-slate-200 bg-white lg:block">{sidebar}</aside>
+    <div className="erp-shell min-h-screen bg-[#f4f7fa] text-slate-900">
+      <aside className="fixed bottom-3 left-3 top-3 z-40 hidden w-[260px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_22px_60px_rgba(6,45,85,0.12)] lg:block">{sidebar}</aside>
       {mobileNavOpen && <div className="fixed inset-0 z-[70] bg-slate-950/45 backdrop-blur-sm lg:hidden"><div className="h-full w-[280px] bg-white shadow-2xl">{sidebar}</div><button type="button" onClick={() => setMobileNavOpen(false)} className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-700" aria-label="Close ERP navigation"><X className="h-5 w-5" /></button></div>}
 
-      <div className="lg:pl-[260px]">
-        <header className="sticky top-0 z-30 flex h-[72px] items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-xl sm:px-6 xl:px-8">
+      <div className="lg:pl-[284px]">
+        <header className="sticky top-3 z-30 mx-3 flex h-[68px] items-center gap-3 rounded-2xl border border-white bg-white/90 px-4 shadow-[0_14px_40px_rgba(6,45,85,0.09)] backdrop-blur-xl sm:px-6 xl:px-8">
           <button type="button" onClick={() => setMobileNavOpen(true)} className="erp-icon-button lg:hidden" aria-label="Open ERP navigation"><Menu className="h-4 w-4" /></button>
           <label className="relative max-w-xl flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input placeholder="Search students, leads, applications...  Ctrl K" className="h-10 w-full rounded-xl bg-slate-50 pl-10 pr-4 text-[10px] font-semibold outline-none ring-1 ring-inset ring-slate-200 focus:ring-blue-300" /></label>
           <select className="hidden h-10 rounded-xl bg-white px-3 text-[9px] font-bold text-slate-600 outline-none ring-1 ring-slate-200 sm:block"><option>This month</option><option>Today</option><option>This week</option><option>Custom period</option></select>
@@ -373,7 +374,7 @@ export const CounselorPortalView = ({ onNavigate }) => {
 
         <main className="p-4 sm:p-6 xl:p-8">
           {loading && <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 8 }).map((_, index) => <div key={index} className="h-36 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" />)}</div>}
-          {error && <div className="mx-auto max-w-xl rounded-2xl border border-rose-200 bg-white p-8 text-center shadow-xl"><ShieldCheck className="mx-auto h-8 w-8 text-rose-500" /><h2 className="mt-4 text-lg font-extrabold text-[#082f57]">Staff authentication required</h2><p className="mt-2 text-xs leading-6 text-slate-500">{error}</p><form onSubmit={handleStaffLogin} className="mx-auto mt-6 max-w-sm space-y-3 text-left"><label className="form-label">Staff email<input type="email" value={staffCredentials.email} onChange={(event) => setStaffCredentials({ ...staffCredentials, email: event.target.value })} className="form-field" autoComplete="username" required /></label><label className="form-label">Password<input type="password" value={staffCredentials.password} onChange={(event) => setStaffCredentials({ ...staffCredentials, password: event.target.value })} className="form-field" autoComplete="current-password" required /></label><button type="submit" disabled={signingIn} className="erp-primary-button w-full">{signingIn ? 'Signing in…' : 'Sign in to ERP'}</button></form><button type="button" onClick={loadWorkspace} className="mt-4 text-[10px] font-bold text-slate-400 hover:text-[#075ec5]"><RefreshCw className="mr-1 inline h-3.5 w-3.5" /> Retry connection</button></div>}
+          {error && <div className="mx-auto grid max-w-4xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_28px_80px_rgba(6,45,85,0.14)] lg:grid-cols-[0.8fr_1.2fr]"><div className="relative hidden overflow-hidden bg-gradient-to-br from-[#062d55] to-[#075ec5] p-10 text-white lg:flex lg:flex-col lg:justify-between"><BriefcaseBusiness className="h-10 w-10 text-sky-200" /><div><h2 className="font-display text-3xl font-semibold">Your consultancy workspace.</h2><p className="mt-4 text-xs leading-6 text-blue-100/75">Leads, students, applications, documents, tasks, finance, and reporting in one secure operating system.</p></div></div><div className="p-7 sm:p-10"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#075ec5]"><ShieldCheck className="h-6 w-6" /></span><h2 className="font-display mt-5 text-2xl font-semibold text-[#082f57]">Staff authentication required</h2><p className="mt-2 text-xs leading-6 text-slate-500">Sign in with your authorized team account to continue.</p><form onSubmit={handleStaffLogin} className="mt-7 space-y-4 text-left"><label className="form-label">Staff email<input type="email" value={staffCredentials.email} onChange={(event) => setStaffCredentials({ ...staffCredentials, email: event.target.value })} className="form-field" placeholder="name@mothertheresa.edu" autoComplete="username" required /></label><label className="form-label">Password<input type="password" value={staffCredentials.password} onChange={(event) => setStaffCredentials({ ...staffCredentials, password: event.target.value })} className="form-field" placeholder="Enter your password" autoComplete="current-password" required /></label><div className="rounded-xl bg-rose-50 p-3 text-[10px] leading-5 text-rose-700">{error}</div><button type="submit" disabled={signingIn} className="erp-primary-button w-full">{signingIn ? 'Signing in…' : 'Sign in to ERP'} <ArrowRight className="h-4 w-4" /></button></form><button type="button" onClick={loadWorkspace} className="mt-4 text-[10px] font-bold text-slate-400 hover:text-[#075ec5]"><RefreshCw className="mr-1 inline h-3.5 w-3.5" /> Retry connection</button></div></div>}
           {!loading && !error && renderModule()}
         </main>
       </div>
