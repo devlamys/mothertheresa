@@ -31,6 +31,8 @@ export const Footer = ({ onStartTest, onNavigate }) => {
               <button type="button" onClick={() => onNavigate('landing')} className="hover:text-white">Home</button>
               <button type="button" onClick={() => onNavigate('about')} className="hover:text-white">About Us</button>
               <button type="button" onClick={() => onNavigate('colleges')} className="hover:text-white">Destinations</button>
+              <button type="button" onClick={() => onNavigate('scholarships')} className="hover:text-white">Scholarships</button>
+              <button type="button" onClick={() => onNavigate('language_academy')} className="hover:text-white">Language Academy</button>
               <button type="button" onClick={() => onNavigate('board')} className="hover:text-white">Board of Trustees</button>
               <button type="button" onClick={() => onNavigate('contact')} className="hover:text-white">Contact</button>
             </div>

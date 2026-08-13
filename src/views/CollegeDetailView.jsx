@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Brain, Check, CircleDollarSign, FileCheck2, GraduationCap, MapPin, ShieldCheck, Star, UsersRound } from 'lucide-react';
 import { COUNTRY_META } from '../utils/collegeUtils';
 import { useApp } from '../context/useApp';
 
 export const CollegeDetailView = ({ university, onBack, onStartTest, onOpenAuth, isShortlisted, onToggleShortlist }) => {
   const { activeUser, currentTestResult, setCurrentView } = useApp();
+  const [activeSection, setActiveSection] = useState('overview');
 
   if (!university) {
     return (
@@ -63,10 +64,12 @@ export const CollegeDetailView = ({ university, onBack, onStartTest, onOpenAuth,
         </div>
       </section>
 
+      <section className="border-y border-slate-200 bg-white px-5 sm:px-8 lg:px-12"><div className="mx-auto flex max-w-[1280px] gap-2 overflow-x-auto py-3">{[['overview', 'Overview'], ['programs', `Programs (${university.featuredPrograms.length})`], ['admission', 'Admission & costs']].map(([value, label]) => <button key={value} type="button" onClick={() => setActiveSection(value)} className={`whitespace-nowrap rounded-full px-5 py-3 text-xs font-extrabold transition ${activeSection === value ? 'bg-[#062d55] text-white' : 'bg-slate-100 text-slate-600 hover:text-[#075ec5]'}`}>{label}</button>)}</div></section>
+
       <section className="px-5 pb-24 pt-8 sm:px-8 lg:px-12 lg:pb-32">
         <div className="mx-auto grid max-w-[1280px] gap-10 lg:grid-cols-[1fr_360px]">
           <div className="space-y-10">
-            <section>
+            {(activeSection === 'overview' || activeSection === 'programs') && <section>
               <p className="eyebrow">Featured study options</p>
               <h2 className="font-display mt-3 text-3xl font-semibold tracking-[-0.035em] text-[#062d55]">Programs currently highlighted</h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -77,9 +80,9 @@ export const CollegeDetailView = ({ university, onBack, onStartTest, onOpenAuth,
                   </article>
                 ))}
               </div>
-            </section>
+            </section>}
 
-            <section className="rounded-[1.75rem] border border-slate-200 p-6 sm:p-8">
+            {(activeSection === 'overview' || activeSection === 'admission') && <section className="rounded-[1.75rem] border border-slate-200 p-6 sm:p-8">
               <p className="eyebrow">Selection checklist</p>
               <h2 className="font-display mt-3 text-3xl font-semibold tracking-[-0.035em] text-[#062d55]">Verify before you apply</h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -92,7 +95,9 @@ export const CollegeDetailView = ({ university, onBack, onStartTest, onOpenAuth,
                   'Accommodation, safety, support, and accessibility',
                 ].map((item) => <div key={item} className="flex items-start gap-2 text-sm leading-6 text-slate-600"><Check className="mt-1 h-4 w-4 shrink-0 text-emerald-500" /> {item}</div>)}
               </div>
-            </section>
+            </section>}
+
+            {activeSection === 'admission' && <section className="grid gap-4 sm:grid-cols-2"><article className="rounded-2xl bg-sky-50 p-6"><CircleDollarSign className="h-6 w-6 text-[#075ec5]" /><h3 className="mt-4 text-lg font-extrabold text-[#062d55]">Estimated annual tuition</h3><p className="mt-2 text-sm text-slate-600">{university.tuitionPerYear}</p><p className="mt-3 text-xs leading-5 text-slate-500">Ask for the complete cost of attendance, deposits, refund terms, insurance, and living expenses.</p></article><article className="rounded-2xl bg-emerald-50 p-6"><BadgeCheck className="h-6 w-6 text-emerald-600" /><h3 className="mt-4 text-lg font-extrabold text-[#062d55]">Scholarship guidance</h3><p className="mt-2 text-sm text-slate-600">{university.scholarshipsAvailable ? 'This sample listing flags scholarship opportunities.' : 'Ask the institution about current awards.'}</p><button type="button" onClick={() => setCurrentView('scholarships')} className="mt-4 inline-flex items-center gap-2 text-xs font-extrabold text-[#075ec5]">Request eligibility review <ArrowRight className="h-4 w-4" /></button></article></section>}
 
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-xs leading-6 text-amber-900">
               <strong>Information notice:</strong> This page is a planning aid based on sample dataset values. Rankings, tuition, acceptance rates, programs, scholarships, and visa conditions can change. Always verify material information with the institution and relevant authorities before paying or applying.

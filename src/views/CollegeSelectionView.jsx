@@ -1,22 +1,23 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowRight, BookOpen, Brain, Check, ChevronRight, GraduationCap, MapPin, Search, SlidersHorizontal, Star } from 'lucide-react';
+import { ArrowRight, ArrowUpDown, BookOpen, Brain, Check, ChevronRight, GraduationCap, MapPin, Search, SlidersHorizontal, Star, X } from 'lucide-react';
 import { GLOBAL_UNIVERSITIES } from '../data/universityData';
 import { COUNTRY_META, PROGRAM_AREAS, universityMatchesArea } from '../utils/collegeUtils';
 import { useApp } from '../context/useApp';
 
 const countries = ['All', ...new Set(GLOBAL_UNIVERSITIES.map((university) => university.country))];
 
-export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedIds, onToggleShortlist }) => {
+export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedIds, onToggleShortlist, comparisonIds, onToggleComparison }) => {
   const { currentTestResult } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('All');
   const [selectedArea, setSelectedArea] = useState('All');
   const [scholarshipsOnly, setScholarshipsOnly] = useState(false);
   const [profileMatchOnly, setProfileMatchOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('ranking');
 
   const filteredUniversities = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    return GLOBAL_UNIVERSITIES.filter((university) => {
+    const results = GLOBAL_UNIVERSITIES.filter((university) => {
       const matchesSearch = !normalizedSearch || [university.name, university.city, university.country, ...university.featuredPrograms].some((value) => value.toLowerCase().includes(normalizedSearch));
       const matchesCountry = selectedCountry === 'All' || university.country === selectedCountry;
       const matchesArea = universityMatchesArea(university, selectedArea);
@@ -24,7 +25,12 @@ export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedId
       const matchesProfile = !profileMatchOnly || (currentTestResult && currentTestResult.overallScore >= university.minAptitudeScore);
       return matchesSearch && matchesCountry && matchesArea && matchesScholarship && matchesProfile;
     });
-  }, [currentTestResult, profileMatchOnly, scholarshipsOnly, searchTerm, selectedArea, selectedCountry]);
+    if (sortBy === 'name') results.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortBy === 'profile') results.sort((a, b) => a.minAptitudeScore - b.minAptitudeScore);
+    return results;
+  }, [currentTestResult, profileMatchOnly, scholarshipsOnly, searchTerm, selectedArea, selectedCountry, sortBy]);
+
+  const comparedUniversities = comparisonIds.map((id) => GLOBAL_UNIVERSITIES.find((university) => university.id === id)).filter(Boolean);
 
   const resetFilters = () => {
     setSearchTerm('');
@@ -55,7 +61,7 @@ export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedId
 
       <section className="relative z-10 mx-auto -mt-1 max-w-[1280px] px-5 sm:px-8 lg:px-12">
         <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-[0_20px_55px_rgba(6,45,85,0.1)] sm:p-6">
-          <div className="grid gap-4 lg:grid-cols-[1.3fr_0.8fr_0.9fr]">
+          <div className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr_0.85fr_0.7fr]">
             <label className="relative block">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search university, city, or program" className="form-field pl-11" />
@@ -64,6 +70,13 @@ export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedId
               <span className="sr-only">Country</span>
               <select value={selectedCountry} onChange={(event) => setSelectedCountry(event.target.value)} className="form-field">
                 {countries.map((country) => <option key={country}>{country}</option>)}
+              </select>
+            </label>
+            <label className="relative">
+              <span className="sr-only">Sort colleges</span>
+              <ArrowUpDown className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="form-field pl-11">
+                <option value="ranking">Sort by ranking</option><option value="name">Sort by name</option><option value="profile">Sort by profile guideline</option>
               </select>
             </label>
             <label>
@@ -103,6 +116,7 @@ export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedId
                 const meta = COUNTRY_META[university.country] || { code: university.country.slice(0, 2).toUpperCase(), color: 'from-slate-500 to-slate-700' };
                 const isShortlisted = shortlistedIds.includes(university.id);
                 const profileEligible = currentTestResult && currentTestResult.overallScore >= university.minAptitudeScore;
+                const isCompared = comparisonIds.includes(university.id);
                 return (
                   <article key={university.id} className="flex flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_16px_40px_rgba(6,45,85,0.07)] transition hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(6,45,85,0.12)]">
                     <div className="flex items-center justify-between border-b border-slate-100 p-5">
@@ -131,6 +145,7 @@ export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedId
                       </div>
 
                       <button type="button" onClick={() => onViewCollege(university)} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#062d55] px-5 py-3 text-xs font-bold text-white transition hover:bg-[#0a416f]">View college details <ChevronRight className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => onToggleComparison(university.id)} className={`mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-xs font-bold transition ${isCompared ? 'border-[#075ec5] bg-blue-50 text-[#075ec5]' : 'border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#075ec5]'}`}><Check className="h-4 w-4" /> {isCompared ? 'Added to compare' : 'Add to compare'}</button>
                     </div>
                   </article>
                 );
@@ -146,6 +161,16 @@ export const CollegeSelectionView = ({ onViewCollege, onStartTest, shortlistedId
           )}
         </div>
       </section>
+
+      {comparedUniversities.length > 0 && (
+        <section className="sticky bottom-4 z-40 mx-auto w-[min(1180px,calc(100%-2rem))] rounded-[1.5rem] border border-blue-100 bg-white/95 p-4 shadow-[0_22px_70px_rgba(6,45,85,0.2)] backdrop-blur-xl">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+            <div className="shrink-0"><strong className="text-sm text-[#062d55]">Compare colleges</strong><span className="mt-1 block text-[10px] text-slate-500">{comparedUniversities.length}/3 selected</span></div>
+            <div className="grid grow gap-2 sm:grid-cols-3">{comparedUniversities.map((university) => <div key={university.id} className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2 text-[10px] font-bold text-slate-600"><span className="line-clamp-2">{university.name}</span><button type="button" onClick={() => onToggleComparison(university.id)} aria-label={`Remove ${university.name} from comparison`}><X className="h-3.5 w-3.5" /></button></div>)}</div>
+          </div>
+          {comparedUniversities.length >= 2 && <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200"><table className="w-full min-w-[760px] text-left text-[11px]"><thead className="bg-[#062d55] text-white"><tr><th className="p-3">College</th><th className="p-3">Destination</th><th className="p-3">Tuition</th><th className="p-3">Ranking</th><th className="p-3">Scholarship</th><th className="p-3">Profile index</th></tr></thead><tbody>{comparedUniversities.map((university) => <tr key={university.id} className="border-t border-slate-100"><th className="p-3 text-[#062d55]">{university.name}</th><td className="p-3">{university.country}</td><td className="p-3">{university.tuitionPerYear}</td><td className="p-3">{university.worldRanking}</td><td className="p-3">{university.scholarshipsAvailable ? 'Listed' : 'Check'}</td><td className="p-3">{university.minAptitudeScore}+</td></tr>)}</tbody></table></div>}
+        </section>
+      )}
 
       <section className="bg-white px-5 py-20 sm:px-8 lg:px-12">
         <div className="mx-auto grid max-w-[1280px] gap-8 rounded-[2rem] bg-[#eaf6fd] p-8 sm:p-10 lg:grid-cols-[1fr_auto] lg:items-center">

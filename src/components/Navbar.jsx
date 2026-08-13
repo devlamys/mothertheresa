@@ -8,8 +8,9 @@ const navItems = [
   { label: 'Destinations', type: 'section', target: 'destinations' },
   { label: 'Services', type: 'section', target: 'services' },
   { label: 'Universities', type: 'view', target: 'colleges' },
+  { label: 'Scholarships', type: 'view', target: 'scholarships' },
+  { label: 'Language Prep', type: 'view', target: 'language_academy' },
   { label: 'Success Stories', type: 'section', target: 'stories' },
-  { label: 'Resources', type: 'assessment', target: 'test' },
   { label: 'Contact', type: 'view', target: 'contact' },
 ];
 
@@ -61,7 +62,7 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
           <img src={`${import.meta.env.BASE_URL}brand/mother-teresa-logo.jpg`} alt="Mother Teresa Educational Global Trust" />
         </button>
 
-        <nav className="hidden items-center rounded-2xl border border-slate-200/70 bg-slate-50/80 px-1.5 min-[1180px]:flex" aria-label="Main navigation">
+        <nav className="hidden items-center rounded-2xl border border-slate-200/70 bg-slate-50/80 px-1.5 min-[1380px]:flex" aria-label="Main navigation">
           {navItems.map((item) => (
             <button
               key={item.label}
@@ -76,7 +77,7 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
           ))}
         </nav>
 
-        <div className="hidden shrink-0 items-center gap-2 min-[1180px]:flex">
+        <div className="hidden shrink-0 items-center gap-2 min-[1380px]:flex">
           <button type="button" onClick={openCms} className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${currentView === 'cms' ? 'border-blue-200 bg-blue-50 text-[#075ec5]' : 'border-slate-200 text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]'}`} aria-label="Open landing page CMS" title="Landing page CMS"><Settings className="h-4 w-4" /></button>
           <button type="button" onClick={openStaffErp} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]" aria-label="Open Staff ERP" title="Staff ERP"><BriefcaseBusiness className="h-4 w-4" /></button>
           {activeUser ? (
@@ -90,7 +91,7 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
           <button type="button" onClick={() => onNavigate('contact')} className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#075ec5] to-[#064a9d] px-4 text-[10px] font-extrabold text-white shadow-[0_10px_24px_rgba(7,94,197,0.25)] transition hover:-translate-y-0.5"><CalendarDays className="h-4 w-4" /> Free Consultation</button>
         </div>
 
-        <div className="flex items-center gap-2 min-[1180px]:hidden">
+        <div className="flex items-center gap-2 min-[1380px]:hidden">
           {!activeUser && <button type="button" onClick={() => onOpenAuth('student', 'student_portal')} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#075ec5] px-3 text-xs font-extrabold text-white"><LogIn className="h-4 w-4" /> Login</button>}
           <button type="button" onClick={() => setMobileMenuOpen((open) => !open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-[#063764]" aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileMenuOpen}>
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -99,7 +100,7 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
       </div>
 
       {mobileMenuOpen && (
-        <div className="pointer-events-auto absolute left-3 right-3 top-[84px] overflow-hidden rounded-3xl border border-white bg-white/95 px-5 py-5 shadow-[0_25px_70px_rgba(6,45,85,0.2)] backdrop-blur-2xl min-[1180px]:hidden sm:left-5 sm:right-5">
+        <div className="pointer-events-auto absolute left-3 right-3 top-[84px] overflow-hidden rounded-3xl border border-white bg-white/95 px-5 py-5 shadow-[0_25px_70px_rgba(6,45,85,0.2)] backdrop-blur-2xl min-[1380px]:hidden sm:left-5 sm:right-5">
           <nav className="mx-auto max-w-3xl" aria-label="Mobile navigation">
             <div className="grid sm:grid-cols-2">
               {navItems.map((item) => (

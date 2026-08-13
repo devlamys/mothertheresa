@@ -15,16 +15,20 @@ import { ContactView } from './views/ContactView';
 import { CollegeSelectionView } from './views/CollegeSelectionView';
 import { CollegeDetailView } from './views/CollegeDetailView';
 import { CmsView } from './views/CmsView';
+import { ScholarshipView } from './views/ScholarshipView';
+import { LanguageAcademyView } from './views/LanguageAcademyView';
 import { CheckCircle2 } from 'lucide-react';
+import { GuidanceAssistant } from './components/GuidanceAssistant';
 
 const AppContent = () => {
   const { currentView, setCurrentView, toastMessage, activeUser, userRole, showToast } = useApp();
   const [authRequest, setAuthRequest] = useState(null);
   const [selectedCollege, setSelectedCollege] = useState(null);
   const [shortlistedIds, setShortlistedIds] = useState([]);
+  const [comparisonIds, setComparisonIds] = useState([]);
 
-  const publicViews = ['landing', 'about', 'board', 'contact', 'colleges', 'college_detail', 'cms'];
-  const footerViews = ['landing', 'about', 'board', 'contact', 'colleges', 'college_detail'];
+  const publicViews = ['landing', 'about', 'board', 'contact', 'colleges', 'college_detail', 'scholarships', 'language_academy', 'cms'];
+  const footerViews = ['landing', 'about', 'board', 'contact', 'colleges', 'college_detail', 'scholarships', 'language_academy'];
 
   const navigateTo = (view) => {
     setCurrentView(view);
@@ -42,6 +46,18 @@ const AppContent = () => {
       ? shortlistedIds.filter((id) => id !== universityId)
       : [...shortlistedIds, universityId]);
     showToast(isSaved ? 'College removed from your shortlist.' : 'College added to your shortlist.');
+  };
+
+  const toggleComparison = (universityId) => {
+    if (comparisonIds.includes(universityId)) {
+      setComparisonIds(comparisonIds.filter((id) => id !== universityId));
+      return;
+    }
+    if (comparisonIds.length >= 3) {
+      showToast('You can compare up to three colleges at a time.');
+      return;
+    }
+    setComparisonIds([...comparisonIds, universityId]);
   };
 
   const openAuth = (accountType = 'student', nextView = accountType === 'staff' ? 'counselor_portal' : 'student_portal') => {
@@ -80,12 +96,16 @@ const AppContent = () => {
         {currentView === 'about' && <AboutView onNavigate={navigateTo} onStartTest={startAptitudeTest} />}
         {currentView === 'board' && <BoardView onNavigate={navigateTo} />}
         {currentView === 'contact' && <ContactView onNavigate={navigateTo} />}
+        {currentView === 'scholarships' && <ScholarshipView onNavigate={navigateTo} />}
+        {currentView === 'language_academy' && <LanguageAcademyView onNavigate={navigateTo} />}
         {currentView === 'colleges' && (
           <CollegeSelectionView
             onViewCollege={viewCollege}
             onStartTest={startAptitudeTest}
             shortlistedIds={shortlistedIds}
             onToggleShortlist={toggleShortlist}
+            comparisonIds={comparisonIds}
+            onToggleComparison={toggleComparison}
           />
         )}
         {currentView === 'college_detail' && (
@@ -107,6 +127,7 @@ const AppContent = () => {
 
       {/* Footer */}
       {footerViews.includes(currentView) && <Footer onStartTest={startAptitudeTest} onNavigate={navigateTo} />}
+      {footerViews.includes(currentView) && <GuidanceAssistant onNavigate={navigateTo} onStartTest={startAptitudeTest} />}
 
       {/* Auth Modal */}
       {authRequest && (

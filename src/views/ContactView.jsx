@@ -95,6 +95,8 @@ export const ContactView = ({ onNavigate }) => {
                 <select value={formData.enquiryType} onChange={(event) => setFormData({ ...formData, enquiryType: event.target.value })} className="form-field">
                   <option>Study counseling</option>
                   <option>College application</option>
+                  <option>Scholarship guidance</option>
+                  <option>Language preparation</option>
                   <option>Visa and pre-departure</option>
                   <option>Institutional partnership</option>
                   <option>Board or governance</option>
