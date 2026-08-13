@@ -14,7 +14,7 @@ const navItems = [
 ];
 
 export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
-  const { currentView, setCurrentView, userRole, activeUser, logout, loginAsRole } = useApp();
+  const { currentView, setCurrentView, userRole, activeUser, logout } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const goToLandingSection = (sectionId) => {
@@ -45,7 +45,13 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
   const openStaffErp = () => {
     setMobileMenuOpen(false);
     if (userRole === 'counselor') setCurrentView('counselor_portal');
-    else loginAsRole('counselor');
+    else onOpenAuth('staff', 'counselor_portal');
+  };
+
+  const openCms = () => {
+    setMobileMenuOpen(false);
+    if (userRole === 'counselor') onNavigate('cms');
+    else onOpenAuth('staff', 'cms');
   };
 
   return (
@@ -71,7 +77,7 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-2 min-[1180px]:flex">
-          <button type="button" onClick={() => onNavigate('cms')} className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${currentView === 'cms' ? 'border-blue-200 bg-blue-50 text-[#075ec5]' : 'border-slate-200 text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]'}`} aria-label="Open landing page CMS" title="Landing page CMS"><Settings className="h-4 w-4" /></button>
+          <button type="button" onClick={openCms} className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${currentView === 'cms' ? 'border-blue-200 bg-blue-50 text-[#075ec5]' : 'border-slate-200 text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]'}`} aria-label="Open landing page CMS" title="Landing page CMS"><Settings className="h-4 w-4" /></button>
           <button type="button" onClick={openStaffErp} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]" aria-label="Open Staff ERP" title="Staff ERP"><BriefcaseBusiness className="h-4 w-4" /></button>
           {activeUser ? (
             <>
@@ -101,7 +107,7 @@ export const Navbar = ({ onOpenAuth, onStartTest, onNavigate }) => {
               ))}
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <button type="button" onClick={() => { onNavigate('cms'); setMobileMenuOpen(false); }} className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 px-5 py-3 text-sm font-bold text-[#075ec5]"><Settings className="h-4 w-4" /> Content Manager</button>
+              <button type="button" onClick={openCms} className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 px-5 py-3 text-sm font-bold text-[#075ec5]"><Settings className="h-4 w-4" /> Content Manager</button>
               <button type="button" onClick={openStaffErp} className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 px-5 py-3 text-sm font-bold text-[#075ec5]"><BriefcaseBusiness className="h-4 w-4" /> Staff ERP</button>
               {activeUser ? (
                 <button type="button" onClick={openActivePortal} className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 px-5 py-3 text-sm font-bold text-[#075ec5]"><GraduationCap className="h-4 w-4" /> Open {userRole === 'counselor' ? 'counselor ERP' : 'student portal'}</button>

@@ -20,12 +20,13 @@ import { loginStaff } from '../services/erpApi';
 
 const inputClass = 'h-12 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-4 text-sm font-semibold text-[#123b60] outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100';
 
-export const AuthModal = ({ onClose, initialMode = 'login', onAuthenticated, purpose = 'portal' }) => {
-  const { loginAsRole, registerStudent, showToast } = useApp();
-  const [accountType, setAccountType] = useState('student');
+export const AuthModal = ({ onClose, initialMode = 'login', initialAccountType = 'student', nextView, onAuthenticated, purpose = 'portal' }) => {
+  const { authenticateStudent, loginAsRole, registerStudent } = useApp();
+  const [accountType, setAccountType] = useState(purpose === 'assessment' ? 'student' : initialAccountType);
   const [authMode, setAuthMode] = useState(initialMode);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState({
@@ -49,12 +50,17 @@ export const AuthModal = ({ onClose, initialMode = 'login', onAuthenticated, pur
       return;
     }
 
+    if (!isStaff && authMode === 'register' && (!/[a-z]/u.test(formData.password) || !/[A-Z]/u.test(formData.password) || !/\d/u.test(formData.password))) {
+      setFormError('Use at least one uppercase letter, one lowercase letter, and one number.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       if (isStaff) {
-        await loginStaff(formData.email, formData.password);
-        loginAsRole('counselor');
-        finishAuthentication('counselor_portal');
+        const staffUser = await loginStaff(formData.email, formData.password, rememberMe);
+        loginAsRole('counselor', staffUser);
+        finishAuthentication(nextView || 'counselor_portal');
         return;
       }
 
@@ -62,11 +68,11 @@ export const AuthModal = ({ onClose, initialMode = 'login', onAuthenticated, pur
         if (!formData.name.trim() || !formData.phone.trim()) throw new Error('Please complete your name and phone number.');
         if (formData.password !== formData.confirmPassword) throw new Error('The passwords do not match.');
         if (!acceptedTerms) throw new Error('Please confirm the assessment consent and privacy notice.');
-        registerStudent(formData);
+        await registerStudent({ ...formData, rememberMe });
       } else {
-        loginAsRole('student');
+        await authenticateStudent(formData.email, formData.password, rememberMe);
       }
-      finishAuthentication(isAssessmentSignup ? 'test' : 'student_portal');
+      finishAuthentication(nextView || (isAssessmentSignup ? 'test' : 'student_portal'));
     } catch (error) {
       setFormError(error.message || 'We could not sign you in. Please check your details.');
     } finally {
@@ -145,6 +151,8 @@ export const AuthModal = ({ onClose, initialMode = 'login', onAuthenticated, pur
                 {!isStaff && authMode === 'register' && <label className="auth-label">Confirm password<span className="relative mt-2 block"><Lock className="auth-field-icon" /><input type={showPassword ? 'text' : 'password'} minLength={8} value={formData.confirmPassword} onChange={(event) => setFormData({ ...formData, confirmPassword: event.target.value })} placeholder="Repeat password" autoComplete="new-password" className={inputClass} required /></span></label>}
               </div>
 
+              {(isStaff || authMode === 'login') && <label className="flex cursor-pointer items-center gap-2 text-[11px] font-bold text-slate-500"><input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} className="h-4 w-4 rounded accent-[#075ec5]" /> Keep me signed in on this device</label>}
+
               {!isStaff && authMode === 'register' && <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-3 text-[10px] leading-5 text-slate-600"><input type="checkbox" checked={acceptedTerms} onChange={(event) => setAcceptedTerms(event.target.checked)} className="mt-1 h-4 w-4 accent-[#075ec5]" /><span>I consent to my responses being used for a saved career-guidance profile. This guidance is not an admission guarantee.</span></label>}
 
               {formError && <div className="flex items-start gap-2 rounded-xl border border-rose-100 bg-rose-50 p-3 text-xs leading-5 text-rose-700"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" /> {formError}</div>}
@@ -154,7 +162,6 @@ export const AuthModal = ({ onClose, initialMode = 'login', onAuthenticated, pur
               </button>
             </form>
 
-            {!isStaff && authMode === 'login' && <button type="button" onClick={() => { loginAsRole('student'); showToast('Demo student workspace opened.'); finishAuthentication('student_portal'); }} className="mt-4 w-full rounded-xl border border-slate-200 py-3 text-xs font-extrabold text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-[#075ec5]">Explore with demo student</button>}
             <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-semibold text-slate-400"><ShieldCheck className="h-3.5 w-3.5 text-emerald-500" /> Secure access · Privacy-first guidance</div>
           </div>
         </section>

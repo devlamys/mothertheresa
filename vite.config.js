@@ -12,6 +12,7 @@ const sitesMetadata = () => ({
     await rm(outputDirectory, { recursive: true, force: true })
     await mkdir(outputDirectory, { recursive: true })
     await cp(resolve('.openai', 'hosting.json'), resolve(outputDirectory, 'hosting.json'))
+    await cp(resolve('drizzle'), resolve(outputDirectory, 'drizzle'), { recursive: true })
   },
 })
 
@@ -27,11 +28,16 @@ export default defineConfig(async () => {
         config: {
           name: 'server',
           main: './worker/index.js',
-          compatibility_date: '2026-08-12',
+          compatibility_date: '2026-05-22',
           assets: {
             binding: 'ASSETS',
             not_found_handling: 'single-page-application',
           },
+          d1_databases: [{
+            binding: 'DB',
+            database_name: 'site-creator-d1',
+            database_id: '00000000-0000-4000-8000-000000000000',
+          }],
         },
       }),
     )

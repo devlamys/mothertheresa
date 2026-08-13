@@ -44,8 +44,12 @@ const AppContent = () => {
     showToast(isSaved ? 'College removed from your shortlist.' : 'College added to your shortlist.');
   };
 
+  const openAuth = (accountType = 'student', nextView = accountType === 'staff' ? 'counselor_portal' : 'student_portal') => {
+    setAuthRequest({ mode: 'login', accountType, purpose: 'portal', nextView });
+  };
+
   const openStudentPortalAuth = () => {
-    setAuthRequest({ mode: 'login', purpose: 'portal', nextView: 'student_portal' });
+    openAuth('student', 'student_portal');
   };
 
   const startAptitudeTest = () => {
@@ -53,7 +57,7 @@ const AppContent = () => {
       setCurrentView('test');
       return;
     }
-    setAuthRequest({ mode: 'register', purpose: 'assessment', nextView: 'test' });
+    setAuthRequest({ mode: 'register', accountType: 'student', purpose: 'assessment', nextView: 'test' });
   };
 
   return (
@@ -68,7 +72,7 @@ const AppContent = () => {
       )}
 
       {/* Main Navbar */}
-      {currentView !== 'counselor_portal' && <Navbar onOpenAuth={openStudentPortalAuth} onStartTest={startAptitudeTest} onNavigate={navigateTo} />}
+      {currentView !== 'counselor_portal' && <Navbar onOpenAuth={openAuth} onStartTest={startAptitudeTest} onNavigate={navigateTo} />}
 
       {/* Dynamic View Routing */}
       <main className="grow">
@@ -108,6 +112,8 @@ const AppContent = () => {
       {authRequest && (
         <AuthModal
           initialMode={authRequest.mode}
+          initialAccountType={authRequest.accountType}
+          nextView={authRequest.nextView}
           purpose={authRequest.purpose}
           onClose={() => setAuthRequest(null)}
           onAuthenticated={(targetView) => setCurrentView(targetView || authRequest.nextView)}

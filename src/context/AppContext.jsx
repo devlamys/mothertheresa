@@ -4,7 +4,15 @@ import { CAREER_PROFILES } from '../data/careerData';
 import { GLOBAL_UNIVERSITIES } from '../data/universityData';
 import { scoreAptitudeAssessment } from '../utils/aptitudeScoring';
 import { DEFAULT_LANDING_CONTENT } from '../data/landingContent';
-import { getPublicHomepage, publishHomepage, submitWebsiteLead } from '../services/erpApi';
+import {
+  getAuthSession,
+  getPublicHomepage,
+  loginStudentAccount,
+  logoutAccount,
+  publishHomepage,
+  registerStudentAccount,
+  submitWebsiteLead,
+} from '../services/erpApi';
 import { AppContext } from './appContextInstance';
 
 const normalizeLandingContent = (content = {}) => ({
@@ -33,6 +41,7 @@ export const AppProvider = ({ children }) => {
   const [currentTestResult, setCurrentTestResult] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [toastMessage, setToastMessage] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const [landingContent, setLandingContent] = useState(() => {
     const saved = localStorage.getItem('mothertheresa_landing_content');
     if (saved) {
@@ -64,6 +73,38 @@ export const AppProvider = ({ children }) => {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    getAuthSession()
+      .then((session) => {
+        if (!active) return;
+        if (!session.authenticated || !session.user) {
+          setState((current) => ({ ...current, userRole: 'guest', activeUser: null }));
+          return;
+        }
+        const user = session.user;
+        if (user.role === 'student') {
+          const profile = { ...user, preferredMajor: 'To be identified through aptitude assessment', avatar: null };
+          setState((current) => {
+            const isSameStudent = current.studentProfile?.id === profile.id;
+            return {
+              ...current,
+              studentProfile: profile,
+              activeUser: profile,
+              userRole: 'student',
+              ...(isSameStudent ? {} : { applications: [], documents: [], appointments: [], testResults: [] }),
+            };
+          });
+        } else {
+          const profile = { ...user, title: user.role === 'admin' ? 'Platform Administrator' : 'Admissions Counselor', branch: 'Dubai Main Branch' };
+          setState((current) => ({ ...current, counselorProfile: profile, activeUser: profile, userRole: 'counselor' }));
+        }
+      })
+      .catch(() => null)
+      .finally(() => { if (active) setAuthReady(true); });
+    return () => { active = false; };
+  }, []);
+
   const showToast = (message) => {
     setToastMessage(message);
     setTimeout(() => {
@@ -72,23 +113,25 @@ export const AppProvider = ({ children }) => {
   };
 
   // Switch role / login handler
-  const loginAsRole = (role) => {
+  const loginAsRole = (role, authenticatedUser = null) => {
     if (role === 'student') {
       setState(prev => ({
         ...prev,
         userRole: 'student',
-        activeUser: prev.studentProfile
+        activeUser: authenticatedUser || prev.studentProfile
       }));
       setCurrentView('student_portal');
-      showToast('Logged in as Demo Student: Aarav Sharma');
+      showToast(`Welcome back, ${(authenticatedUser || state.studentProfile).name}.`);
     } else if (role === 'counselor') {
+      const counselor = authenticatedUser ? { ...state.counselorProfile, ...authenticatedUser } : state.counselorProfile;
       setState(prev => ({
         ...prev,
         userRole: 'counselor',
-        activeUser: prev.counselorProfile
+        counselorProfile: authenticatedUser ? { ...prev.counselorProfile, ...authenticatedUser } : prev.counselorProfile,
+        activeUser: authenticatedUser ? { ...prev.counselorProfile, ...authenticatedUser } : prev.counselorProfile
       }));
       setCurrentView('counselor_portal');
-      showToast('Logged in as Senior Counselor: Dr. Sarah Jenkins');
+      showToast(`Welcome back, ${counselor.name}.`);
     } else {
       setState(prev => ({
         ...prev,
@@ -96,23 +139,20 @@ export const AppProvider = ({ children }) => {
         activeUser: null
       }));
       setCurrentView('landing');
-      showToast('Logged out to Guest Mode');
+      showToast('You have been signed out securely.');
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await logoutAccount().catch(() => null);
     loginAsRole('guest');
   };
 
-  const registerStudent = (profileData) => {
+  const registerStudent = async (profileData) => {
+    const account = await registerStudentAccount(profileData);
     const studentProfile = {
-      id: `std_${Date.now()}`,
-      name: profileData.name.trim(),
-      email: profileData.email.trim().toLowerCase(),
-      phone: profileData.phone.trim(),
-      targetCountry: profileData.targetCountry,
+      ...account,
       preferredMajor: 'To be identified through aptitude assessment',
-      educationLevel: profileData.educationLevel || 'Not specified',
       avatar: null,
     };
 
@@ -121,8 +161,29 @@ export const AppProvider = ({ children }) => {
       studentProfile,
       activeUser: studentProfile,
       userRole: 'student',
+      applications: [],
+      documents: [],
+      appointments: [],
+      testResults: [],
     }));
     showToast(`Welcome, ${studentProfile.name}. Your student profile is ready.`);
+    return studentProfile;
+  };
+
+  const authenticateStudent = async (email, password, rememberMe = false) => {
+    const account = await loginStudentAccount(email, password, rememberMe);
+    const studentProfile = { ...account, preferredMajor: 'To be identified through aptitude assessment', avatar: null };
+    setState((current) => {
+      const isSameStudent = current.studentProfile?.id === studentProfile.id;
+      return {
+        ...current,
+        studentProfile,
+        activeUser: studentProfile,
+        userRole: 'student',
+        ...(isSameStudent ? {} : { applications: [], documents: [], appointments: [], testResults: [] }),
+      };
+    });
+    showToast(`Welcome back, ${studentProfile.name}.`);
     return studentProfile;
   };
 
@@ -311,7 +372,9 @@ export const AppProvider = ({ children }) => {
       activeTab,
       setActiveTab,
       toastMessage,
+      authReady,
       loginAsRole,
+      authenticateStudent,
       registerStudent,
       logout,
       submitAptitudeTest,

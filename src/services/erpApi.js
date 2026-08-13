@@ -30,28 +30,59 @@ export const getCsrfSession = async () => {
   return session;
 };
 
+export const getAuthSession = async () => {
+  try {
+    const session = await request('auth/me');
+    if (session?.csrfToken) csrfToken = session.csrfToken;
+    return { authenticated: session?.authenticated ?? Boolean(session?.user), user: session?.user || null };
+  } catch (error) {
+    if (error.status === 401) return { authenticated: false, user: null };
+    throw error;
+  }
+};
+
+export const registerStudentAccount = async (profile) => {
+  if (!csrfToken) await getCsrfSession();
+  const session = await request('auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ ...profile, accountType: 'student' }),
+  });
+  return session.user;
+};
+
+export const loginStudentAccount = async (email, password, rememberMe = false) => {
+  if (!csrfToken) await getCsrfSession();
+  const session = await request('auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, rememberMe, accountType: 'student' }),
+  });
+  return session.user;
+};
+
 export const startDemoStaffSession = async () => {
   const session = await request('auth/demo', { method: 'POST', body: '{}' });
   csrfToken = session.csrfToken;
   return session.user;
 };
 
-export const loginStaff = async (email, password) => {
+export const loginStaff = async (email, password, rememberMe = false) => {
   if (!csrfToken) await getCsrfSession();
   const session = await request('auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, rememberMe, accountType: 'staff' }),
   });
   csrfToken = session.csrfToken;
   return session.user;
 };
 
-export const logoutStaffSession = async () => {
+export const logoutAccount = async () => {
   if (!csrfToken) await getCsrfSession();
   const result = await request('auth/logout', { method: 'POST', body: '{}' });
   csrfToken = null;
   return result;
 };
+
+export const logoutStaffSession = logoutAccount;
 
 const withStaffSession = async (operation) => {
   try {
