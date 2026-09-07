@@ -130,6 +130,7 @@ function current_user(): ?array
     $roles = db()->prepare('SELECT r.slug FROM roles r JOIN user_roles ur ON ur.role_id = r.id WHERE ur.user_id = ?');
     $roles->execute([$user['id']]);
     $user['roles'] = array_column($roles->fetchAll(), 'slug');
+    $user['role'] = $user['roles'][0] ?? 'guest';
     return $user;
 }
 

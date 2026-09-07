@@ -30,6 +30,58 @@ try {
         respond(['user' => current_user(), 'csrfToken' => csrf_token()]);
     }
 
+    if ($resource === 'auth/register' && $method === 'POST') {
+        rate_limit('register', 5, 300);
+        verify_csrf();
+        $body = json_body();
+        $name = clean_string($body['name'] ?? $body['fullName'] ?? null, 160);
+        $email = strtolower((string) clean_string($body['email'] ?? null, 190));
+        $password = (string) ($body['password'] ?? '');
+        $mobile = clean_string($body['mobile'] ?? $body['phone'] ?? null, 40);
+
+        if (!$name || !$email || !$password) {
+            fail('Name, email, and password are required.', 422);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            fail('Please provide a valid email address.', 422);
+        }
+        if (strlen($password) < 6) {
+            fail('Password must be at least 6 characters.', 422);
+        }
+
+        $existing = db()->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+        $existing->execute([$email]);
+        if ($existing->fetch()) {
+            fail('An account with this email address already exists. Please log in.', 409);
+        }
+
+        db()->beginTransaction();
+        $passHash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = db()->prepare('INSERT INTO users (branch_id, name, email, phone, password_hash, status) VALUES (1, ?, ?, ?, ?, "active")');
+        $stmt->execute([$name, $email, $mobile, $passHash]);
+        $userId = (int) db()->lastInsertId();
+
+        $roleStmt = db()->prepare('SELECT id FROM roles WHERE slug = "student" LIMIT 1');
+        $roleStmt->execute();
+        $roleId = (int) ($roleStmt->fetchColumn() ?: 10);
+
+        db()->prepare('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)')->execute([$userId, $roleId]);
+
+        $studentCode = sprintf('MTEGT-S-%s-%05d', date('Y'), $userId);
+        $studentStmt = db()->prepare(
+            'INSERT INTO students (student_code, branch_id, counselor_id, full_name, email, mobile, journey_stage, status)
+             VALUES (?, 1, 1, ?, ?, ?, "Registered", "active")',
+        );
+        $studentStmt->execute([$studentCode, $name, $email, $mobile]);
+
+        record_activity($userId, 'auth', 'register', 'user', $userId, 'New student account registered.');
+        db()->commit();
+
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $userId;
+        respond(['user' => current_user(), 'csrfToken' => csrf_token()], 201);
+    }
+
     if ($resource === 'auth/login' && $method === 'POST') {
         rate_limit('login', 5, 300);
         verify_csrf();
