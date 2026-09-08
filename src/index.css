@@ -42,18 +42,15 @@
 
 .brand-logo-frame {
   position: relative;
-  display: block;
-  aspect-ratio: 4.65 / 1;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
 }
 
 .brand-logo-frame img {
-  position: absolute;
-  left: 0;
-  top: 50%;
+  display: block;
   width: 100%;
   height: auto;
-  transform: translateY(-50%);
+  object-fit: contain;
 }
 
 .hero-wash {
