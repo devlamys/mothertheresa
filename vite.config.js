@@ -46,5 +46,14 @@ export default defineConfig(async () => {
   return {
     base: isSitesBuild ? '/' : '/mothertheresa/dist/',
     plugins,
+    server: {
+      proxy: {
+        '/mothertheresa/api': {
+          target: 'http://localhost:8000',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/mothertheresa\/api/, '')
+        }
+      }
+    }
   }
 })
